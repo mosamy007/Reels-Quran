@@ -1,5 +1,6 @@
-flask
-flask-cors
 requests
 pydub
 moviepy==1.0.3
+pillow
+numpy
+kivy>=2.2.0
