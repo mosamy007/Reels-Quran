@@ -106,25 +106,47 @@ jobs:
     - name: Build APK (Debug)
       if: github.event.inputs.build_type == 'debug' || (github.event.inputs.build_type == '' && github.event_name == 'pull_request')
       run: |
+        set -e
         buildozer -v android debug 2>&1 | tee buildozer.log
+        BUILD_EXIT_CODE=${PIPESTATUS[0]}
+        if [ $BUILD_EXIT_CODE -ne 0 ]; then
+          echo "ERROR: Build failed with exit code $BUILD_EXIT_CODE"
+          exit $BUILD_EXIT_CODE
+        fi
         echo "=== Searching for APK files ==="
         find . -name "*.apk" -type f 2>/dev/null | head -10
         # Ensure bin directory exists and copy any found APKs
         mkdir -p bin
-        find . -name "*.apk" -type f -exec cp {} bin/ \; 2>/dev/null || true
+        find . -name "*.apk" -type f -exec cp -v {} bin/ \; 2>/dev/null || true
+        echo "=== Contents of bin/ ==="
         ls -la bin/
+        if [ ! "$(ls -A bin/)" ]; then
+          echo "ERROR: No files found in bin/ directory"
+          exit 1
+        fi
         
         
     - name: Build AAB (Release)
       if: github.event.inputs.build_type == 'release' || github.ref == 'refs/heads/main'
       run: |
+        set -e
         buildozer -v android release 2>&1 | tee buildozer.log
+        BUILD_EXIT_CODE=${PIPESTATUS[0]}
+        if [ $BUILD_EXIT_CODE -ne 0 ]; then
+          echo "ERROR: Build failed with exit code $BUILD_EXIT_CODE"
+          exit $BUILD_EXIT_CODE
+        fi
         echo "=== Searching for AAB files ==="
         find . -name "*.aab" -type f 2>/dev/null | head -10
         # Ensure bin directory exists and copy any found AABs
         mkdir -p bin
-        find . -name "*.aab" -type f -exec cp {} bin/ \; 2>/dev/null || true
+        find . -name "*.aab" -type f -exec cp -v {} bin/ \; 2>/dev/null || true
+        echo "=== Contents of bin/ ==="
         ls -la bin/
+        if [ ! "$(ls -A bin/)" ]; then
+          echo "ERROR: No files found in bin/ directory"
+          exit 1
+        fi
         
         
     - name: Upload APK Artifact
@@ -132,7 +154,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: QuranReels-APK-debug
-        path: bin/*.apk
+        path: bin/*
         if-no-files-found: warn
         
         
@@ -141,7 +163,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: QuranReels-AAB-release
-        path: bin/*.aab
+        path: bin/*
         if-no-files-found: warn
         
         
