@@ -76,8 +76,14 @@ jobs:
         KEYSTORE_PASS: ${{ secrets.KEYSTORE_PASSWORD }}
       run: |
         if [ -n "$KEYSTORE_B64" ]; then
-          echo "$KEYSTORE_B64" | base64 -d > quranreels.keystore
-          echo "Keystore decoded successfully"
+          # Remove any whitespace/newlines from base64 and decode
+          echo "$KEYSTORE_B64" | tr -d '\n\r ' | base64 -d > quranreels.keystore
+          if [ -s quranreels.keystore ]; then
+            echo "Keystore decoded successfully ($(stat -c%s quranreels.keystore) bytes)"
+          else
+            echo "ERROR: Keystore is empty after decoding"
+            exit 1
+          fi
         else
           echo "No keystore found, will create debug build"
         fi
