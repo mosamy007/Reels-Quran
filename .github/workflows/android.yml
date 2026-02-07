@@ -107,6 +107,11 @@ jobs:
       if: github.event.inputs.build_type == 'debug' || (github.event.inputs.build_type == '' && github.event_name == 'pull_request')
       run: |
         buildozer -v android debug 2>&1 | tee buildozer.log
+        echo "=== Searching for APK files ==="
+        find . -name "*.apk" -type f 2>/dev/null | head -10
+        # Ensure bin directory exists and copy any found APKs
+        mkdir -p bin
+        find . -name "*.apk" -type f -exec cp {} bin/ \; 2>/dev/null || true
         ls -la bin/
         
         
@@ -114,6 +119,11 @@ jobs:
       if: github.event.inputs.build_type == 'release' || github.ref == 'refs/heads/main'
       run: |
         buildozer -v android release 2>&1 | tee buildozer.log
+        echo "=== Searching for AAB files ==="
+        find . -name "*.aab" -type f 2>/dev/null | head -10
+        # Ensure bin directory exists and copy any found AABs
+        mkdir -p bin
+        find . -name "*.aab" -type f -exec cp {} bin/ \; 2>/dev/null || true
         ls -la bin/
         
         
@@ -122,7 +132,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: QuranReels-APK-debug
-        path: bin/*
+        path: bin/*.apk
         if-no-files-found: warn
         
         
@@ -131,7 +141,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: QuranReels-AAB-release
-        path: bin/*
+        path: bin/*.aab
         if-no-files-found: warn
         
         
