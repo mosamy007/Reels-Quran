@@ -89,20 +89,3 @@ For manual execution, you need:
 5. The browser will automatically open at `http://localhost:5000`.
 
 ---
-
-### 📞 Support | الدعم
-Developed by **Arabian AI School**
-- YouTube: [@arabianAiSchool](https://youtube.com/@arabianAiSchool)
-- Instagram: [@arabianaischool](https://instagram.com/arabianaischool)
-
----
-
-### 🎥 Tutorial & Download | روابط الشرح والتحميل
-- **Watch Tutorial | فيديو الشرح:** https://youtu.be/TL1Gim1VT40
-- **Download Portable Version | تحميل النسخة المحمولة:** https://drive.google.com/file/d/12B7vphnf6WLPWScvLIZX7l31Oh4VKDiR/view?usp=sharing
-
-© المشروع لأهداف تعليمية فقط وجميع الحقوق محفوظة لأصحابها
-
-
-
-
