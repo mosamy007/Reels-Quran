@@ -69,6 +69,25 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-buildozer-
           
+    - name: Setup Android SDK Licenses
+      run: |
+        # Create all necessary license files for Android SDK
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        # Standard Android SDK license
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        # Preview license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
+        # Google TV license
+        echo "d56f5187479451eabf01fb78af6dfcb131a6481e" > ~/.buildozer/android/platform/android-sdk/licenses/android-googletv-license
+        # ARM license
+        echo "" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-arm-dbt-license
+        # Tools license
+        echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-tools-license
+        # GDK license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/google-gdk-license
+        echo "Created license files:"
+        ls -la ~/.buildozer/android/platform/android-sdk/licenses/ || echo "Directory not yet created"
+        
     - name: Decode Keystore (for release builds)
       if: github.event.inputs.build_type == 'release' || github.ref == 'refs/heads/main'
       env:
@@ -105,7 +124,13 @@ jobs:
         
     - name: Build APK (Debug)
       if: github.event.inputs.build_type == 'debug' || (github.event.inputs.build_type == '' && github.event_name == 'pull_request')
+      env:
+        ANDROID_SDK_HOME: ~/.buildozer/android/platform/android-sdk
       run: |
+        # Ensure licenses are in place before build
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
         buildozer -v android debug 2>&1 | tee buildozer.log
         echo "=== Searching for APK files ==="
         find . -name "*.apk" -type f 2>/dev/null | head -10
@@ -116,7 +141,13 @@ jobs:
         
     - name: Build AAB (Release)
       if: github.event.inputs.build_type == 'release' || github.ref == 'refs/heads/main'
+      env:
+        ANDROID_SDK_HOME: ~/.buildozer/android/platform/android-sdk
       run: |
+        # Ensure licenses are in place before build
+        mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+        echo "24333f8a63b6825ea9c5514f83c2829b004d1fee" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+        echo "84831b9409646a918e30573bab4c9c91346d8abd" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-preview-license
         buildozer -v android release 2>&1 | tee buildozer.log
         echo "=== Searching for AAB files ==="
         find . -name "*.aab" -type f -exec cp -v {} bin/ \; 2>/dev/null || true
